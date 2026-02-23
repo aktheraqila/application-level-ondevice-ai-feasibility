@@ -1,42 +1,48 @@
-# Application-Level Feasibility of On-Device AI for Mobile Applications
+# Application-Level On-Device AI Feasibility Study
 
-## Research Objective
+## Overview
 
-This project investigates whether transformer-based language models can be practically deployed inside real Android applications running entirely on-device, without internet connectivity.
+This repository contains the experimental framework for the research study:
 
-The study evaluates feasibility at the application level, not just at the model level.
+**"Application-Level Feasibility of On-Device AI for Mobile Applications"**
 
----
+The objective of this research is to evaluate whether transformer-based language models can be practically deployed inside real Android applications running fully on-device, without internet connectivity.
 
-## Research Gap
-
-Prior work primarily focuses on:
-- Model compression techniques
-- Architecture optimization
-- Hardware acceleration
-
-However, limited work evaluates:
-- Real Android app integration
-- End-to-end latency in production-like scenarios
-- Memory, CPU, battery, and thermal impact on actual smartphones
-
-This study addresses that gap.
+Unlike prior work that focuses primarily on model compression or architectural optimization, this study evaluates feasibility at the *application level*, considering real-world system constraints on actual smartphones.
 
 ---
 
-## Experimental Design
+## Research Motivation
 
-### Phase 1 — Model Preparation
-- Export transformer model to ONNX
-- Apply dynamic INT8 quantization
-- Reduce model size for mobile feasibility
+Recent advances in lightweight transformer models enable on-device inference. However, limited research evaluates:
 
-### Phase 2 — Android Integration
-- Integrate model into a simple Android app
-- Ensure fully offline inference
+- End-to-end Android app integration
+- Real-device latency under CPU-only execution
+- Memory footprint in production-like scenarios
+- Battery consumption impact
+- Thermal behavior under repeated inference
 
-### Phase 3 — Real Device Evaluation
-Tested on:
+This project addresses that gap through real-device experimentation.
+
+---
+
+## Methodology
+
+The research is conducted in three major phases:
+
+### Phase 1 – Model Preparation
+- Export pretrained transformer model to ONNX format
+- Apply dynamic INT8 quantization using ONNX Runtime
+- Reduce model size for mobile deployment feasibility
+
+### Phase 2 – Android Integration
+- Integrate quantized model into a simple Android application
+- Ensure fully offline execution (no internet usage)
+- CPU-based inference
+
+### Phase 3 – Experimental Evaluation
+Experiments are conducted on representative low-end and mid-range smartphones:
+
 - Honor 9X (Kirin 710F)
 - Realme C17 (Snapdragon 460)
 - Tecno Camon 40 Pro 4G (Helio G100)
@@ -46,47 +52,33 @@ Measured metrics:
 - Memory usage
 - CPU utilization
 - Battery consumption
-- Device temperature
+- Device temperature variation
 
 ---
 
 ## Model Optimization Results
 
-Dynamic INT8 quantization achieved:
+Dynamic INT8 quantization achieved approximately 75% model size reduction:
 
 | Component | FP32 | INT8 |
 |-----------|------|------|
 | Encoder   | 138 MB | 34 MB |
 | Decoder   | 214 MB | 54 MB |
-| Total     | 352 MB | 88 MB |
+| **Total** | **352 MB** | **88 MB** |
 
-~75% reduction in total model size.
-
-Quantization enabled feasible mobile deployment.
+Quantization significantly improves deployability while maintaining functional correctness.
 
 ---
 
-## Expected Outcome
+## Research Contribution
 
-This research aims to determine:
-- Acceptable performance thresholds for on-device AI
-- Practical hardware limitations
-- Feasibility differences across low-end and mid-range devices
+This study contributes:
 
----
-
-## Repository Contents
-
-- ONNX models (INT8)
-- Quantization scripts
-- Android integration (planned)
-- Benchmarking scripts (planned)
+- Application-level empirical evaluation of on-device AI
+- Real-device experimentation on low-end hardware
+- System-level feasibility analysis (latency, memory, battery, thermal)
+- Identification of practical deployment thresholds
 
 ---
 
-## Status
-
-✔ Model export complete  
-✔ Quantization complete  
-⬜ Android benchmarking in progress  
-⬜ Full experimental results pending  
+## Repository Structure
