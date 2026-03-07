@@ -1,0 +1,14 @@
+# Virtual Environment
+venv/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Heavy Model Files (Too large for Git)
+onnx_model/
+onnx_model_fp32/
+*.onnx
+
+# IDE Files
+.vscode/
