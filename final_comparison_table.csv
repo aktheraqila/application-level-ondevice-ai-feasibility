@@ -1,0 +1,4 @@
+model,runtime,Avg_Latency_sec,Tokens_Per_Sec,Avg_Memory_MB,Avg_CPU_Percent
+distilbart-6-6,onnx_fp32,3.54,13.95,1822.08,100.0
+distilbart-6-6,onnx_int8,3.62,14.02,909.04,100.0
+distilbart-6-6,pytorch_fp32,4.68,10.54,1423.18,100.0
