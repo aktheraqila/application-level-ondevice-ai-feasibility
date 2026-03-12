@@ -81,4 +81,6 @@ This study contributes:
 
 ---
 
-## Repository Structure
+## License
+* The source code is licensed under the GNU GPLv3 License. See the LICENSE file for details.
+* The written research, datasets, and figures are licensed under Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0).
