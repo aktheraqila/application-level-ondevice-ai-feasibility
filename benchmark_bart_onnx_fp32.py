@@ -1,0 +1,79 @@
+import os
+import time
+import psutil
+import pandas as pd
+import torch
+from transformers import AutoTokenizer
+from optimum.onnxruntime import ORTModelForSeq2SeqLM
+
+DATASET_FOLDER = "dataset"
+RESULT_FILE = "benchmark_bart_onnx_fp32.csv"
+ONNX_DIR = "onnx_bart_fp32"
+MODEL_NAME = "facebook/bart-base"
+WARMUP_RUNS = 5
+MEASURED_RUNS = 10
+MIN_LENGTH = 20
+MAX_LENGTH = 50
+
+print(f"--- Benchmarking {MODEL_NAME} (ONNX FP32) ---")
+
+tokenizer = AutoTokenizer.from_pretrained(ONNX_DIR)
+model = ORTModelForSeq2SeqLM.from_pretrained(
+    ONNX_DIR,
+    provider="CPUExecutionProvider",
+    use_cache=True,
+    use_merged=False
+)
+
+articles = []
+for file in sorted(os.listdir(DATASET_FOLDER)):
+    if file.endswith(".txt"):
+        path = os.path.join(DATASET_FOLDER, file)
+        with open(path, "r", encoding="utf-8") as f:
+            text = f.read()
+        category = file.split('_')[0]
+        articles.append((file, text, category))
+
+results = []
+process = psutil.Process(os.getpid())
+
+with torch.no_grad():
+    for idx, (article_id, text, category) in enumerate(articles):
+        print(f"[{idx+1}/{len(articles)}] Benchmarking {article_id}...")
+
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
+        input_tokens = inputs["input_ids"].shape[1]
+
+        for _ in range(WARMUP_RUNS):
+            _ = model.generate(**inputs, min_new_tokens=MIN_LENGTH, max_new_tokens=MAX_LENGTH)
+
+        for run in range(MEASURED_RUNS):
+            cpu_before = psutil.cpu_percent(interval=None)
+            mem_before = process.memory_info().rss
+
+            start_time = time.time()
+            outputs = model.generate(**inputs, min_new_tokens=MIN_LENGTH, max_new_tokens=MAX_LENGTH)
+            total_latency = time.time() - start_time
+
+            cpu_after = psutil.cpu_percent(interval=None)
+            mem_after = process.memory_info().rss
+
+            output_tokens = outputs.shape[1]
+
+            results.append({
+                "model": MODEL_NAME,
+                "runtime": "onnx_fp32",
+                "article_id": article_id,
+                "category": category,
+                "run_id": run,
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+                "total_latency": total_latency,
+                "tokens_per_second": output_tokens / total_latency,
+                "memory_mb": max(mem_before, mem_after) / (1024 * 1024),
+                "cpu_percent": max(cpu_before, cpu_after)
+            })
+
+pd.DataFrame(results).to_csv(RESULT_FILE, index=False)
+
+print(f"\nDone! Results saved to {RESULT_FILE}")
